@@ -5,11 +5,25 @@ using UnityEngine.UI; // Obrigatório para a Scrollbar funcionar
 public class MenuManager : MonoBehaviour
 {
     public GameObject objeto;
-    public Material material;
-    public Scrollbar scrollbar;
-    public TextMeshProUGUI texto;
+    private Material materialDefault;
+    public Material materialNovo;
+    private bool isMaterialChanged;
+    
+    //Scrollbar R-G-B
+    public Scrollbar scrollbarR;
+    public Scrollbar scrollbarG;
+    public Scrollbar scrollbarB;
+    
 
-    public void onChangeObject()
+    void Start()
+    {
+        if (objeto != null)
+        {
+            materialDefault = objeto.GetComponent<Renderer>().material;
+        }
+    }
+    
+    public void onChangeMaterial()
     {
         if (objeto != null)
         {
@@ -17,25 +31,36 @@ public class MenuManager : MonoBehaviour
 
             if (rend != null)
             {
-                material = rend.material;
-                Debug.Log("Material CHANGEADO");
+                if (isMaterialChanged == false)
+                {
+                    rend.material = materialNovo;
+                    Debug.Log("Material Novo");
+                    isMaterialChanged = true;
+                }
+                else
+                {
+                    rend.material = materialDefault;
+                    Debug.Log("Material Padrao");
+                    isMaterialChanged = false;
+                }
             }
         }
-    }
-    
-    public void onExit()
-    {
-        Application.Quit();
-        //isso será para o editor, que faz a função de desativar o playmode do editor e voltar ao editor normalmente
-    #if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-    #endif
+        else Debug.Log("Nao existe o objeto ou material");
     }
 
-    public void UpdateTexto()
+    public void UpdateMaterialColor()
     {
-        float valor = scrollbar.value;
-        
-        texto.text = (valor*100).ToString("F0") + "%";
+        objeto.GetComponent<Renderer>().material = materialDefault;
+
+        if (objeto.GetComponent<Renderer>().material != null)
+        {
+            float r = scrollbarR.value;
+            float g = scrollbarG.value;
+            float b = scrollbarB.value;
+            
+            Color color = new Color(r, g, b);
+            
+            objeto.GetComponent<Renderer>().material.color = color;
+        }
     }
 }
