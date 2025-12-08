@@ -4225,8 +4225,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Placar
   homeText: {fileID: 1013258253}
   awayText: {fileID: 1557758903}
-  home: {fileID: 914234111}
-  away: {fileID: 1617779187}
+  home: {fileID: 1922959857}
+  away: {fileID: 1617779189}
 --- !u!1 &1078830043
 GameObject:
   m_ObjectHideFlags: 0
@@ -4716,16 +4716,20 @@ PrefabInstance:
       value: 1.5515188
       objectReference: {fileID: 0}
     - target: {fileID: 916556831190276005, guid: c74dedccd455b1d4aa89fa479113c4ea, type: 3}
+      propertyPath: m_Size.z
+      value: 20.616201
+      objectReference: {fileID: 0}
+    - target: {fileID: 916556831190276005, guid: c74dedccd455b1d4aa89fa479113c4ea, type: 3}
       propertyPath: m_Center.x
       value: -0.016753292
       objectReference: {fileID: 0}
     - target: {fileID: 916556831190276005, guid: c74dedccd455b1d4aa89fa479113c4ea, type: 3}
       propertyPath: m_Center.y
-      value: -1.7119755e-12
+      value: 1.2524745e-10
       objectReference: {fileID: 0}
     - target: {fileID: 916556831190276005, guid: c74dedccd455b1d4aa89fa479113c4ea, type: 3}
       propertyPath: m_Center.z
-      value: 2.3161193e-13
+      value: -9.808114
       objectReference: {fileID: 0}
     - target: {fileID: 916556831190276005, guid: c74dedccd455b1d4aa89fa479113c4ea, type: 3}
       propertyPath: m_IsTrigger
@@ -4826,7 +4830,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6984428417285457769, guid: c74dedccd455b1d4aa89fa479113c4ea, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1922959857}
   m_SourcePrefab: {fileID: 100100000, guid: c74dedccd455b1d4aa89fa479113c4ea, type: 3}
 --- !u!1 &1205348018
 GameObject:
@@ -7363,6 +7370,18 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6984428417285457769, guid: c74dedccd455b1d4aa89fa479113c4ea, type: 3}
   m_PrefabInstance: {fileID: 929508139799580539}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1617779189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1617779187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3aa22b30aa8e5246aa74df4314c7173, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GolSensor
 --- !u!1 &1636417660
 GameObject:
   m_ObjectHideFlags: 0
@@ -8868,6 +8887,18 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5556558119678341028, guid: c74dedccd455b1d4aa89fa479113c4ea, type: 3}
   m_PrefabInstance: {fileID: 1201284705}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1922959857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 914234111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3aa22b30aa8e5246aa74df4314c7173, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GolSensor
 --- !u!1 &1928589823
 GameObject:
   m_ObjectHideFlags: 0
@@ -9390,6 +9421,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Soccer Ball
       objectReference: {fileID: 0}
+    - target: {fileID: 1975457108487340, guid: ec3e8f3ed27e2244caaedaf589590a03, type: 3}
+      propertyPath: m_TagString
+      value: Bola
+      objectReference: {fileID: 0}
     - target: {fileID: 4935240531098310, guid: ec3e8f3ed27e2244caaedaf589590a03, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.51367
@@ -9700,7 +9735,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6984428417285457769, guid: c74dedccd455b1d4aa89fa479113c4ea, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1617779189}
   m_SourcePrefab: {fileID: 100100000, guid: c74dedccd455b1d4aa89fa479113c4ea, type: 3}
 --- !u!1001 &8449198726171616699
 PrefabInstance:
