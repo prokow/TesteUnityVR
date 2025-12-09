@@ -13,12 +13,12 @@ public class GolSensor : MonoBehaviour
         {
             OnGol?.Invoke();
 
-            /*BolaController bolaScript = other.GetComponent<BolaController>();
+            BolaController bolaScript = other.GetComponent<BolaController>();
 
             if (bolaScript != null)
             {
                 bolaScript.ResetarPosicao();
-            }*/
+            }
         }
     }
 }

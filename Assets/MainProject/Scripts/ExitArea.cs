@@ -5,13 +5,13 @@ using Unity.XR.CoreUtils;
 
 public class ExitArea : MonoBehaviour
 {
-    public void OnTriggerEnter(Collider other)
+    /*public void OnTriggerEnter(Collider other)
     {
         Application.Quit();
         //isso será para o editor, que faz a função de desativar o playmode do editor e voltar ao editor normalmente
         #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
         #endif
-    }
+    }*/
 }
 
