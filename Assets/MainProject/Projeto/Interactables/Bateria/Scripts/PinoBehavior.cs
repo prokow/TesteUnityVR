@@ -6,67 +6,74 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class PinoController : MonoBehaviour 
 {
-    private Vector3 posicaoInicial;
-    private Quaternion rotacaoInicial;
-    private Rigidbody pinoRB;
-    
-    [Header("Configuração do Retorno")]
-    [Tooltip("Quanto tempo demora para volta (em s)")]
+    [Header("Configurações")]
     public float returnTime = 0.5f;
     public Vector3 offsetPino = new Vector3(0f, 0f, 0.1f);
-    void Awake()
+    
+    private Vector3 posicaoInicial;
+    private Quaternion rotacaoInicial; 
+    private Rigidbody pinoRB;
+    
+    private bool interruptor = false;   // interruptor
+    private float time = 0f;            // cronometro 
+    private Vector3 posicaoFinal;       // posição da onde sai quando solta
+    private Quaternion rotacaoFinal;
+    
+    void Start()
     {
         pinoRB = GetComponent<Rigidbody>();
         
+        // salva a posição inicial
         posicaoInicial = transform.position;
         rotacaoInicial = transform.rotation;
     }
     
-
-    // A função do evento agora chama a rotina de espera
+    
+    
     public void AoSoltarObjeto()
     {
-        Debug.Log("Soltei! Esperando o frame acabar para resetar...");
-        StopAllCoroutines();
-        StartCoroutine(Retornar());
-    }
-
-    IEnumerator Retornar()
-    {
-        // Comando para esperar o fim do frame atual
-        // Isso deixa o XR Toolkit terminar tudo que ele precisa fazer antes
-        yield return new WaitForEndOfFrame(); 
-
-        // Agora sim, resetamos a física
-        if (pinoRB != null && !pinoRB.isKinematic)
+        if (pinoRB != null)
         {
-            pinoRB.linearVelocity = Vector3.zero;
-            pinoRB.angularVelocity = Vector3.zero;
+            if (!pinoRB.isKinematic)
+            {
+                pinoRB.linearVelocity = Vector3.zero;
+                pinoRB.angularVelocity = Vector3.zero;
+            }
             pinoRB.isKinematic = true;
         }
-
-        float passedTime = 0f;
         
-        Vector3 positionAtual = pinoRB.transform.position;
-        Quaternion rotationAtual = pinoRB.transform.rotation;
-        
-        Vector3 positionFinal = posicaoInicial - offsetPino;
+        posicaoFinal = transform.position;
+        rotacaoFinal = transform.rotation;
 
-        while (passedTime < returnTime)
+        time = 0f;
+
+        interruptor = true;
+        
+        Debug.Log("Iniciando Pino Controller");
+    }
+
+    // Event Tick, que acontece o tempo todo no jogo
+    void Update()
+    {   
+        //se estiver desligado, nao acontece nada
+        if (interruptor == false) return;
+        
+        // caso o interruptor seja true, então segue com a lógica
+        time += Time.deltaTime;                         // aumenta o cronômetro
+        float percentage = time / returnTime;           // calcula a porcentagem do tempo que vai retornar o pino 
+        Vector3 destino = posicaoInicial - offsetPino;  // define o destino final (casa - offset)
+        
+        // Lerp para mover suavemente 
+        transform.position = Vector3.Lerp(posicaoFinal, destino, percentage);
+        transform.rotation = Quaternion.Lerp(rotacaoFinal, rotacaoInicial, percentage);
+
+        if (percentage >= 1.0f)
         {
-            passedTime += Time.deltaTime;
+            transform.position = destino;
+            transform.rotation = rotacaoInicial;
             
-            float t = passedTime / returnTime;
-            
-            transform.position = Vector3.Lerp(positionAtual, positionFinal, t);
-            transform.rotation = Quaternion.Lerp(rotationAtual, rotacaoInicial, t);
-
-            yield return null;
+            interruptor = false;
+            Debug.Log("Feito");
         }
-        
-        pinoRB.transform.position = positionFinal; 
-        pinoRB.transform.rotation = rotacaoInicial;
-        
-        Debug.Log("Resetado com sucesso!");
     }
 }
