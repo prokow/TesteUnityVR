@@ -1,79 +1,88 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 
-public class PinoController : MonoBehaviour 
+public class PinoBehavior : XRGrabInteractable 
 {
     [Header("Configurações")]
     public float returnTime = 0.5f;
-    public Vector3 offsetPino = new Vector3(0f, 0f, 0.1f);
+    public Transform returnPino;
     
-    private Vector3 posicaoInicial;
-    private Quaternion rotacaoInicial; 
     private Rigidbody pinoRB;
     
     private bool interruptor = false;   // interruptor
     private float time = 0f;            // cronometro 
     private Vector3 posicaoFinal;       // posição da onde sai quando solta
     private Quaternion rotacaoFinal;
-    
-    void Start()
+
+    protected override void Awake()
     {
+        base.Awake();
         pinoRB = GetComponent<Rigidbody>();
-        
-        // salva a posição inicial
-        posicaoInicial = transform.position;
-        rotacaoInicial = transform.rotation;
     }
-    
-    
-    
-    public void AoSoltarObjeto()
+
+    protected override void OnSelectEntered(SelectEnterEventArgs args)
     {
-        if (pinoRB != null)
-        {
-            if (!pinoRB.isKinematic)
-            {
-                pinoRB.linearVelocity = Vector3.zero;
-                pinoRB.angularVelocity = Vector3.zero;
-            }
-            pinoRB.isKinematic = true;
-        }
-        
-        posicaoFinal = transform.position;
-        rotacaoFinal = transform.rotation;
-
-        time = 0f;
-
-        interruptor = true;
-        
-        Debug.Log("Iniciando Pino Controller");
+        base.OnSelectEntered(args);
+        interruptor = false;
+        pinoRB.isKinematic = false;
     }
 
-    // Event Tick, que acontece o tempo todo no jogo
-    void Update()
-    {   
-        //se estiver desligado, nao acontece nada
-        if (interruptor == false) return;
-        
-        // caso o interruptor seja true, então segue com a lógica
-        time += Time.deltaTime;                         // aumenta o cronômetro
-        float percentage = time / returnTime;           // calcula a porcentagem do tempo que vai retornar o pino 
-        Vector3 destino = posicaoInicial - offsetPino;  // define o destino final (casa - offset)
-        
-        // Lerp para mover suavemente 
-        transform.position = Vector3.Lerp(posicaoFinal, destino, percentage);
-        transform.rotation = Quaternion.Lerp(rotacaoFinal, rotacaoInicial, percentage);
-
-        if (percentage >= 1.0f)
+    protected override void OnSelectExited(SelectExitEventArgs args)
+    {
+        base.OnSelectExited(args);
+        if (returnPino != null)
         {
-            transform.position = destino;
-            transform.rotation = rotacaoInicial;
+            // posição e rotação de onde sai quando solta
+            posicaoFinal = transform.position;
+            rotacaoFinal = transform.rotation;
             
-            interruptor = false;
-            Debug.Log("Feito");
+            // ao soltar o objeto, ele vai voltar para a posição onde estava e ficar isKinematic (parado)
+            if (pinoRB != null)
+            {
+                if (!pinoRB.isKinematic)
+                {
+                    pinoRB.linearVelocity = Vector3.zero;
+                    pinoRB.angularVelocity = Vector3.zero;
+                    pinoRB.isKinematic = true;
+                }
+            }
+
+            time = 0f;
+            interruptor = true;
+            //Debug.Log("Pino solto");
+        }
+    }
+
+    public override void ProcessInteractable(XRInteractionUpdateOrder.UpdatePhase updatePhase)
+    {
+        base.ProcessInteractable(updatePhase);
+
+        if (updatePhase == XRInteractionUpdateOrder.UpdatePhase.Dynamic)
+        {
+            // se estiver desligado, nao acontece nada
+            if (interruptor == false) return;
+        
+            // caso o interruptor seja true, então segue com a lógica
+            time += Time.deltaTime;                         // aumenta o cronômetro
+            float percentage = time / returnTime;           // calcula a porcentagem do tempo que vai retornar o pino 
+        
+            // Lerp
+            transform.position = Vector3.Lerp(posicaoFinal, returnPino.position, percentage);
+            transform.rotation = Quaternion.Lerp(rotacaoFinal, returnPino.rotation, percentage);
+
+            if (percentage >= 1.0f)
+            {
+                transform.position = returnPino.position;
+                transform.rotation = returnPino.rotation;
+            
+                interruptor = false;
+                //Debug.Log("Pino voltou ao lugar desejado");
+            }
         }
     }
 }

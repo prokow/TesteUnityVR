@@ -4,27 +4,22 @@ using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-public class LacreController : MonoBehaviour
+
+public class LacreController : XRSimpleInteractable
 {
-    private XRGrabInteractable grabInteractable;
+    public System.Action OnLacre;
+    [SerializeField]
+    private GameObject Lacre;
+    //private bool isOpenLacre = false;
     
-    [SerializeField] private GameObject lacre;
-    public UnityEvent OnPress;
-
-    // Variável para travar e não deixar abrir 2 vezes (opcional, mas recomendado)
-    private bool jaAbriu = false;
-
-    // Essa função será chamada APENAS pelo evento do XR Interactable
+    //public UnityEvent OnPress;
+    
     public void Open()
     {
-        if (!jaAbriu)
-        {
-            // Gira -20 graus no eixo X
-            lacre.transform.Rotate(-20f, 0, 0);
+        // Gira -20 graus no eixo X
+        Lacre.transform.Rotate(-20f, 0, 0);
             
-            jaAbriu = true; // Trava para não girar infinito se tocar de novo
-            Debug.Log("Lacre aberto via Poke!");
-        }
+        //isOpenLacre = true; // Trava para não girar infinito se tocar de novo
+        Debug.Log("Lacre aberto via Poke!");
     }
-
 }

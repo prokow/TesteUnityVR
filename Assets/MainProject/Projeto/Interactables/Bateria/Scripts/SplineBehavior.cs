@@ -1,101 +1,94 @@
+using System;
+using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;
 
 public class SplineBehavior : MonoBehaviour
 {
-    [Header("Referencia")]
+    [Header("Referencia para cada Object")] 
     public SplineContainer splineContainer;
-    public Transform pinoDinamico;
-    public Transform pointReference;
-    public Transform pointStatic;
     
-    [Header("Configurações")]
-    public int indexPoint = 0;
-    private int indexPointStatic = 1;
+    // Transform's para seguir o spline junto com pino
+    public Transform pinoDinamico;  // lugar que o spline point[0] seguirá o pino
+    public Transform cableToFollow; // lugar que o spline point[1] seguirá para o cabo não ficar deformado
+    
+    // Confere se está pego ou não o Pino
+    private bool isGrabbed;
+    private bool activeLerp = true;
 
-    [Tooltip("Curva do cabo spline")]
+    [Tooltip("Indices de cada spline point deve iniciar")] 
+    private int indexPoint = 0;
+    private int indexPointToFollow = 1;
+    
+    [Header("Curva do cabo Spline")] 
     public float rigidezCabo = 0.5f;
+    [Header("Suavização do Lerp")]
+    [SerializeField]
+    private float velocidadeLerp = 10f;
     
-    public Vector3 offset = new Vector3(0, 0, -1);
-    
-
-    // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
+        // Condição inicial para ver se ambos Spline e o Transform do pino existem
         if (splineContainer != null && pinoDinamico != null)
         {
-            UpdateSplinePoint(pointReference);
-            //UpdateSplinePointwhenDropped(pointStatic);
+            // caso existir, fará o update do spline point (Knot) [0] para o transform do Pino para seguir,
+            // e não ativa o lerp
+            UpdateSplinePoint(indexPoint, pinoDinamico, !activeLerp);
+
+            // Condição para caso seja pego
+            if (isGrabbed)
+            {
+                // caso existir, fará o update do spline point (Knot) [1] para o gameObject ao lado para nao ficar deformado o cabo
+                // o lerp é ativado para ir suavemente ao lado
+                UpdateSplinePoint(indexPointToFollow, cableToFollow, activeLerp);
+            }
         }
     }
-
-    void UpdateSplinePointwhenDropped(Transform t)
-    {
-        Spline spline = splineContainer.Spline;
-        BezierKnot noKnot = spline[indexPointStatic];
-
-        noKnot.Position = splineContainer.transform.InverseTransformPoint(t.position);
-        noKnot.Rotation = Quaternion.Inverse(splineContainer.transform.rotation) * t.rotation;
-        
-        Vector3 point = noKnot.Position;
-        Vector3 tangentLocal = splineContainer.transform.InverseTransformDirection(point);
-
-        noKnot.TangentIn = tangentLocal * rigidezCabo;
-        noKnot.TangentOut = Vector3.zero;
-        
-        spline[indexPointStatic] = noKnot;
-    }
     
+    // será colocado no Evento de Select Entered do PinoBehavior, porque é lá que ocorre o Grab e Drop 
+    public void onGrab()
+    {
+        isGrabbed = true;
+        Debug.Log("pego");
+    }
 
-    void UpdateSplinePoint(Transform t)
+    // será colocado no Evento de Select Exited do PinoBehavior, porque é lá que ocorre o Grab e Drop
+    public void onDrop()
+    {
+        isGrabbed = false;
+        Debug.Log("solto");
+    }
+
+    
+    // Função principal para atualizar o spline enquanto interage com a bateria
+    void UpdateSplinePoint(int index, Transform t, bool lerp)
     {
         Spline spline = splineContainer.Spline;
-        BezierKnot noKnot = spline[indexPoint];
-      
-        noKnot.Position = splineContainer.transform.InverseTransformPoint(t.position);
-        noKnot.Rotation = Quaternion.Inverse(splineContainer.transform.rotation) * t.rotation;
 
-        Vector3 worldDirection = t.TransformDirection(offset);
-        Vector3 tangenteLocal = splineContainer.transform.InverseTransformDirection(worldDirection);
-
-        noKnot.TangentIn = tangenteLocal * rigidezCabo;
-        noKnot.TangentOut = Vector3.zero;
+        if (index >= spline.Knots.Count()) return; // condição para indicar se o index existe ou não
         
-        spline[indexPoint] = noKnot;
-
-        /*Vector3 localPosition = splineContainer.transform.InverseTransformPoint(pinoDinamico.position);
-
+        BezierKnot noKnot = spline[index];
+        
+        Vector3 localPosition = splineContainer.transform.InverseTransformPoint(t.position);
         noKnot.Position = localPosition;
 
-        Vector3 localDirection = splineContainer.transform.InverseTransformDirection(pinoDinamico.forward);
-        noKnot.TangentIn = localDirection * -2.0f;
+        Vector3 worldTangentPos = t.forward;
+        Vector3 localDirectionTangent = splineContainer.transform.InverseTransformDirection(worldTangentPos *-Math.Abs(rigidezCabo));
+        
+        if (lerp)
+        {
+            float lerpStep = Time.deltaTime * velocidadeLerp;
+            noKnot.Position = Vector3.Lerp(noKnot.Position, localPosition, lerpStep);
+            noKnot.TangentIn = Vector3.Lerp(noKnot.TangentIn, localDirectionTangent, lerpStep);
+        }
+        else
+        {
+            noKnot.Position = localPosition;
+            noKnot.TangentIn = localDirectionTangent;
+        }
+        
         noKnot.TangentOut = Vector3.zero;
-
-        float3 startPosition = noKnot.TangentIn;
-        float3 endPosition = noKnot.TangentOut;
-        float3 splineTanget = (endPosition - startPosition) * 1.5f;
-
-
-        spline[indexPoint] = noKnot;
-        noKnot.TangentIn = splineTanget;
-    */
+        spline[index] = noKnot;
     }
 }
-
-
-/*
- Posição Inicial para Spline
-    Spline point ou Knob [0]
- 1. Determina a psoição do cabo com pino
-    faz o set start position para o spline point [0]
-    com isso, é pego o spline mesh point transform e o location da SceneRed (que é algo para indicar aonde o spline point deve seguir) 
-    com isso faz o inverse transform location do transform do spline com a locaiton da SceneRed para indicar o set start position da spline point 0
-    (flag update mesh ativado)            
- 
- 2. Determina a tangente do cabo posicionado no pino
-    set start tanget para o spline point [0]
-    pega a location da start position e end position do spline point [0] (end position - start position)
-    com este resultado é multiplicado por um float "curva" (entre 1.0-3.0)
-    (flag update mesh ativado)
- */
