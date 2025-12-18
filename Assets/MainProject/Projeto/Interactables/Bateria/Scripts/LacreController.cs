@@ -1,25 +1,44 @@
-using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Filtering;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
-
 
 public class LacreController : XRSimpleInteractable
 {
-    public System.Action OnLacre;
+    [Header("Lacre da Bateria")]
     [SerializeField]
-    private GameObject Lacre;
-    //private bool isOpenLacre = false;
-    
-    //public UnityEvent OnPress;
+    private GameObject lacrePrefab;
+    private bool isOpenLacre = false;
+
+    [Header("Efeito Sonoro do Lacre ao Abrir")]
+    [SerializeField] private AudioClip efeitoLacre;
+    private AudioSource audioSource;
+
+    public override void ProcessInteractable(XRInteractionUpdateOrder.UpdatePhase updatePhase)
+    {
+        base.ProcessInteractable(updatePhase);
+        audioSource = GetComponent<AudioSource>();
+    }
     
     public void Open()
     {
-        // Gira -20 graus no eixo X
-        Lacre.transform.Rotate(-20f, 0, 0);
-            
-        //isOpenLacre = true; // Trava para não girar infinito se tocar de novo
-        Debug.Log("Lacre aberto via Poke!");
+        if (!isOpenLacre)
+        {
+            if (lacrePrefab.name == "LacreVermelho")
+            {
+                lacrePrefab.transform.Rotate(0, 20f, 0);
+                audioSource.PlayOneShot(efeitoLacre, 5.0f);
+                isOpenLacre = true; // Trava para não girar infinito se tocar de novo
+                Debug.Log("Lacre Vermelho aberto!");
+            }
+            else 
+            {
+                lacrePrefab.transform.Rotate(0, 20f, 0);
+                audioSource.PlayOneShot(efeitoLacre, 5.0f);
+                isOpenLacre = true; // Trava para não girar infinito se tocar de novo
+                Debug.Log("Lacre Preto aberto!");
+            }
+        }
     }
 }

@@ -7,7 +7,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class BateriaManager : MonoBehaviour
 {
     // gameObjects a serem ativados
-    /*public LacreController lacre;
+    public LacreController lacre;
     public PinoBehavior pino;
     public SplineBehavior spline;
 
@@ -16,17 +16,15 @@ public class BateriaManager : MonoBehaviour
     private BoxCollider collider;
 
     private bool isLacreOpen = false;
-
     void Start()
     {
-
     }
 
     public void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Player")
         {
-
+            // pode pegar o objeto
         }
     }
 
@@ -36,9 +34,9 @@ public class BateriaManager : MonoBehaviour
         {
             if (collider.isTrigger == false)
             {
-                pino.AoSoltarObjeto();
+                // solta o objeto
             }
         }
-    }*/
+    }
     
 }

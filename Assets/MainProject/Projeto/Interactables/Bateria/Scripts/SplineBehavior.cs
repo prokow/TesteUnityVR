@@ -46,6 +46,8 @@ public class SplineBehavior : MonoBehaviour
         }
     }
     
+    
+    
     // será colocado no Evento de Select Entered do PinoBehavior, porque é lá que ocorre o Grab e Drop 
     public void onGrab()
     {
