@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
@@ -14,7 +15,7 @@ public class PinoBehavior : XRGrabInteractable
     
     private Rigidbody pinoRB;
     
-    private bool interruptor = false;   // interruptor
+    private bool voltaAoSoltar = false;   // voltaAoSoltar
     private float time = 0f;            // cronometro 
     private Vector3 posicaoFinal;       // posição da onde sai quando solta
     private Quaternion rotacaoFinal;
@@ -23,18 +24,19 @@ public class PinoBehavior : XRGrabInteractable
     {
         base.Awake();
         pinoRB = GetComponent<Rigidbody>();
+        pinoRB.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>().enabled = false;
     }
-
+    
     protected override void OnSelectEntered(SelectEnterEventArgs args)
     {
         base.OnSelectEntered(args);
-        interruptor = false;
-        pinoRB.isKinematic = false;
+        voltaAoSoltar = false;
+        //pinoRB.isKinematic = false;
     }
 
-    protected override void OnSelectExited(SelectExitEventArgs args)
+
+    public void soltarPino()
     {
-        base.OnSelectExited(args);
         if (returnPino != null)
         {
             // posição e rotação de onde sai quando solta
@@ -48,26 +50,32 @@ public class PinoBehavior : XRGrabInteractable
                 {
                     pinoRB.linearVelocity = Vector3.zero;
                     pinoRB.angularVelocity = Vector3.zero;
-                    pinoRB.isKinematic = true;
+                    //pinoRB.isKinematic = true;
                 }
             }
 
             time = 0f;
-            interruptor = true;
+            voltaAoSoltar = true;
             //Debug.Log("Pino solto");
         }
     }
-
+    
+    protected override void OnSelectExited(SelectExitEventArgs args)
+    {
+        base.OnSelectExited(args);
+        soltarPino();
+    }
+    
     public override void ProcessInteractable(XRInteractionUpdateOrder.UpdatePhase updatePhase)
     {
         base.ProcessInteractable(updatePhase);
-
+        
         if (updatePhase == XRInteractionUpdateOrder.UpdatePhase.Dynamic)
         {
             // se estiver desligado, nao acontece nada
-            if (interruptor == false) return;
+            if (voltaAoSoltar == false) return;
         
-            // caso o interruptor seja true, então segue com a lógica
+            // caso o voltaAoSoltar seja true, então segue com a lógica
             time += Time.deltaTime;                         // aumenta o cronômetro
             float percentage = time / returnTime;           // calcula a porcentagem do tempo que vai retornar o pino 
         
@@ -80,7 +88,7 @@ public class PinoBehavior : XRGrabInteractable
                 transform.position = returnPino.position;
                 transform.rotation = returnPino.rotation;
             
-                interruptor = false;
+                voltaAoSoltar = false;
                 //Debug.Log("Pino voltou ao lugar desejado");
             }
         }

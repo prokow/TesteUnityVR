@@ -11,9 +11,13 @@ public class LacreController : XRSimpleInteractable
     private GameObject lacrePrefab;
     private bool isOpenLacre = false;
 
+    [Header("Pino da Bateria (utilizado para autorizar o uso do pino)")]
+    public GameObject pino;
+
     [Header("Efeito Sonoro do Lacre ao Abrir")]
-    [SerializeField] private AudioClip efeitoLacre;
-    private AudioSource audioSource;
+    [SerializeField] 
+    private AudioClip efeitoLacre;      // efeito sonoro a ser declarado
+    private AudioSource audioSource;    // é determinado a área em que o som será transmitido
 
     public override void ProcessInteractable(XRInteractionUpdateOrder.UpdatePhase updatePhase)
     {
@@ -25,19 +29,15 @@ public class LacreController : XRSimpleInteractable
     {
         if (!isOpenLacre)
         {
-            if (lacrePrefab.name == "LacreVermelho")
+            if (lacrePrefab.name == "LacreVermelho" || lacrePrefab.name == "LacrePreto")
             {
                 lacrePrefab.transform.Rotate(0, 20f, 0);
-                audioSource.PlayOneShot(efeitoLacre, 5.0f);
-                isOpenLacre = true; // Trava para não girar infinito se tocar de novo
-                Debug.Log("Lacre Vermelho aberto!");
-            }
-            else 
-            {
-                lacrePrefab.transform.Rotate(0, 20f, 0);
-                audioSource.PlayOneShot(efeitoLacre, 5.0f);
-                isOpenLacre = true; // Trava para não girar infinito se tocar de novo
-                Debug.Log("Lacre Preto aberto!");
+                audioSource.PlayOneShot(efeitoLacre, 5.0f); // efeito sonoro ao abrir o lacre
+                isOpenLacre = true; 
+                Debug.Log("Lacre aberto!");
+                
+                // habilita o pino a ser interagido
+                pino.GetComponent<XRGrabInteractable>().enabled = true;
             }
         }
     }

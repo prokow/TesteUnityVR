@@ -7,36 +7,33 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class BateriaManager : MonoBehaviour
 {
     // gameObjects a serem ativados
-    public LacreController lacre;
-    public PinoBehavior pino;
-    public SplineBehavior spline;
-
-    [Header("Configurações do limite")]
-    [SerializeField]
+    //[Header("Configurações do limite")]
     private BoxCollider collider;
+    
+    [SerializeField] 
+    private PinoBehavior pinoPreto;
+    [SerializeField] 
+    private PinoBehavior pinoVermelho;
 
-    private bool isLacreOpen = false;
     void Start()
     {
-    }
-
-    public void OnTriggerEnter(Collider other)
-    {
-        if (other.tag == "Player")
-        {
-            // pode pegar o objeto
-        }
-    }
-
-    public void OnTriggerExit(Collider other)
-    {
-        if (other.tag == "Player")
-        {
-            if (collider.isTrigger == false)
-            {
-                // solta o objeto
-            }
-        }
+        collider = GetComponent<BoxCollider>();
     }
     
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log(other.name);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        PinoBehavior pino = other.gameObject.GetComponent<PinoBehavior>();
+        if (other.CompareTag("Player"))
+        {
+            pino.soltarPino();
+        }
+    }
 }
