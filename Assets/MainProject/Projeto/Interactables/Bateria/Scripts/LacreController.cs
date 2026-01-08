@@ -34,10 +34,11 @@ public class LacreController : XRSimpleInteractable
                 lacrePrefab.transform.Rotate(0, 20f, 0);
                 audioSource.PlayOneShot(efeitoLacre, 5.0f); // efeito sonoro ao abrir o lacre
                 isOpenLacre = true; 
-                Debug.Log("Lacre aberto!");
+                //Debug.Log("Lacre aberto!");
                 
                 // habilita o pino a ser interagido
                 pino.GetComponent<XRGrabInteractable>().enabled = true;
+                QuestSystem.Instance.startLacreAberto();
             }
         }
     }

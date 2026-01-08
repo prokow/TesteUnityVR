@@ -50,6 +50,8 @@ public class PinoBehavior : XRGrabInteractable
         voltaAoSoltar = false;
         pinoRB.isKinematic = false;
         
+        QuestSystem.Instance.startPinoColetado();
+        
         // Guarda o tempo quando for pego o pino
         tempoGrab = Time.time;
     }
@@ -87,7 +89,7 @@ public class PinoBehavior : XRGrabInteractable
         if (isSelected)
         {
             interactionManager.CancelInteractableSelection((IXRSelectInteractable)this);
-            Debug.Log("soltando pino");
+            //Debug.Log("soltando pino");
         }
     }
 
@@ -117,6 +119,7 @@ public class PinoBehavior : XRGrabInteractable
     protected override void OnSelectExited(SelectExitEventArgs args)
     {
         base.OnSelectExited(args);
+        QuestSystem.Instance.startPinoSolto();
         retornoPino();
     }
     
