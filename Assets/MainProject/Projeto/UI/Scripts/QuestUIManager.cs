@@ -25,15 +25,21 @@ public class QuestUIManager : MonoBehaviour
     [Header("Efeito Sonoro ao validar tarefa")]
     [SerializeField] 
     private AudioClip taskComplete;      // efeito sonoro a ser declarado
-    private AudioSource audioSource;    // é determinado a área em que o som será transmitido
+    private AudioSource audioSourceTask;    // é determinado a área em que o som será transmitido
 
+    [Header("Efeito Sonoro ao finalizar a interação")]
+    [SerializeField] 
+    private AudioClip taskFinished;
+    private AudioSource audioSourceFinished;
     
     //inicializa a instância única do sistema de missões (Singleton)
     //pre-condicao: nenhuma
     //pos-condicao: se não houver instância, define esta; caso contrário, destrói o objeto duplicado
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        audioSourceTask = GetComponent<AudioSource>();
+        audioSourceFinished = GetComponent<AudioSource>();
+        
         panelEnd.SetActive(false);
         
         if (QuestSystem.Instance != null)
@@ -53,7 +59,7 @@ public class QuestUIManager : MonoBehaviour
         switch (taskName)
         {
             case "FirstTask":
-                audioSource.PlayOneShot(taskComplete, 5.0f);
+                audioSourceTask.PlayOneShot(taskComplete, 3.0f);
                 FirstTask.isOn = true;
                 var lacre = FirstTask.colors;
                 lacre.normalColor = Color.green;
@@ -62,7 +68,7 @@ public class QuestUIManager : MonoBehaviour
                 break;
             
             case "SecondTask":
-                audioSource.PlayOneShot(taskComplete, 5.0f);
+                audioSourceTask.PlayOneShot(taskComplete, 3.0f);
                 SecondTask.isOn = true;
                 var pino  = SecondTask.colors;
                 pino.normalColor = Color.green;
@@ -71,7 +77,7 @@ public class QuestUIManager : MonoBehaviour
                 break;
             
             case "ThirdTask":
-                audioSource.PlayOneShot(taskComplete, 5.0f);
+                audioSourceTask.PlayOneShot(taskComplete, 3.0f);
                 ThirdTask.isOn = true;
                 var pinoSolto  = ThirdTask.colors;
                 pinoSolto.normalColor = Color.green;
@@ -80,27 +86,21 @@ public class QuestUIManager : MonoBehaviour
                 break;
         }
     }
+    
 
-    void DoDelayAction(float delayTime)
+    private void EndPanel()
     {
-        StartCoroutine(DelayAction(delayTime));
-    }
-
-    IEnumerator DelayAction(float delayTime)
-    {
-        //Wait for the specified delay time before continuing.
-        yield return new WaitForSeconds(delayTime);
-
-        //Do the action after the delay time has finished.
+        panelTasks.SetActive(false);
+        panelEnd.SetActive(true);
+        audioSourceFinished.PlayOneShot(taskFinished, 0.1f);
+        
     }
     
     void Update()
     {
         if (ThirdTask.isOn)
         {
-            DoDelayAction(10.0f);
-            panelTasks.SetActive(false);
-            panelEnd.SetActive(true);
+            Invoke("EndPanel", 1.0f);
         }
     }
 
