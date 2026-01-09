@@ -12,9 +12,10 @@ public class QuestSystem : MonoBehaviour
 
     public UnityEvent<string> onTaskComplete;  
     
-    // Base usada do Singleton
-    // Se não houver uma instância, então é atribuido esta instância
-    // Caso houver outra instância, eu me destruo para não ter duplicatas 
+    // inicializa a instância única do sistema de missões (Singleton)
+    // pre-condicao: nenhuma
+    // pos-condicao: se não houver instância, define esta;
+    //               caso contrário, destrói o objeto duplicado
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -27,6 +28,9 @@ public class QuestSystem : MonoBehaviour
         }
     }
     
+    // registra a conclusão da etapa de abertura do lacre
+    // pre-condicao: nenhuma
+    // pos-condicao: flag lacreAberto é definida como true assim fazendo a animação do lacre
     public void startLacreAberto()
     {
         if (!Instance.lacreAberto)
@@ -37,6 +41,9 @@ public class QuestSystem : MonoBehaviour
         }
     }
 
+    // registra que o usuário coletou o pino pela primeira vez
+    // pre-condicao: nenhuma
+    // pos-condicao: flag pinoColetado definida como true assim indicando que o user pegou o pino
     public void startPinoColetado()
     {
         if (!Instance.pinoColetado)
@@ -47,6 +54,10 @@ public class QuestSystem : MonoBehaviour
         }
     }
 
+    // registra que o usuário soltou o pino pela primeira vez
+    // pre-condicao: nenhuma
+    // pos-condicao: flag pinoSolto definida como True e é
+    //               feito a animação do pino voltando ao lugar definido
     public void startPinoSolto()
     {
         if (!Instance.pinoSolto)

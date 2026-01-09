@@ -1,11 +1,6 @@
-using System;
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 
 public class PinoBehavior : XRGrabInteractable
@@ -20,22 +15,38 @@ public class PinoBehavior : XRGrabInteractable
 
     // Para quando soltar o Pino
     private bool voltaAoSoltar = false; // voltaAoSoltar
-    private float time = 0f; // cronometro 
-    private Vector3 posicaoFinal; // posição da onde sai quando solta
-    private Quaternion rotacaoFinal; // rotação do pino 
+    private float time = 0f;            // cronometro 
+    private Vector3 posicaoFinal;       // posição da onde sai quando solta
+    private Quaternion rotacaoFinal;    // rotação do pino 
     
     // Usado para logica para soltar o pino quando sair da area limitada 
-    private float tempoGrab; // tempo de quando for pego o pino
+    private float tempoGrab;            // tempo de quando for pego o pino
     
+    
+    
+    //inicializa componentes físicos e estado inicial de interação
+    //pre-condicao: componente Rigidbody deve estar presente no objeto
+    //pos-condicao: rigidbody referenciado, grab desabilitado inicialmente e máscara de interação definida
     protected override void Awake()
     {
         base.Awake();
         pinoRB = GetComponent<Rigidbody>();
-        pinoRB.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>().enabled = false;
+        pinoRB.GetComponent<XRGrabInteractable>().enabled = false;
         UpdateMask(dentroArea());
     }
+    
+    // verifica se a posição atual do pino reside dentro dos limites permitidos
+    // pre-condicao: nenhuma
+    // pos-condicao: retorna true se o pino estiver dentro da area de interação com a bateria ou nulo se não tiver
+    private bool dentroArea()
+    {
+        if (limiteArea == null) return true;
+        return limiteArea.bounds.Contains(transform.position);
+    }
 
-    // Fará um update na camada de interação, se pode ou não pode interagir
+    // altera a camada de interação do objeto para permitir ou bloquear a interação
+    // pre-condicao: nenhuma
+    // pos-condicao: interactionLayers alterada para 'Default' se value for true (pode interagir), ou 0 se false (não pode interagir)
     private void UpdateMask(bool value)
     {
         // se o "value" for verdadeiro, definirá a camada de interação default que é a que podemos interagir
@@ -43,7 +54,12 @@ public class PinoBehavior : XRGrabInteractable
         interactionLayers = value ? LayerMask.GetMask("Default") : 0;
     }
 
-    // Função para quando é pego o pino
+    
+    
+    // trata o evento de captura do pino pelo interactor XR
+    // pre-condicao: objeto deve ser interactable
+    // pos-condicao: flag de retorno resetada, isKinematic do pino desativado
+    //               instância do pino coletado chamado e tempo de captura registrado
     protected override void OnSelectEntered(SelectEnterEventArgs args)
     {
         base.OnSelectEntered(args);
@@ -58,6 +74,9 @@ public class PinoBehavior : XRGrabInteractable
 
     
     // Função para quando soltar o pino ele retornará para a posição definida
+    // configura os parâmetros para o retorno suave do pino à posição original
+    // pre-condicao: transform returnPino deve estar atribuído no Inspector
+    // pos-condicao: estados iniciais de Lerp definidos e velocidades físicas zeradas
     public void retornoPino()
     {
         if (returnPino != null)
@@ -84,6 +103,8 @@ public class PinoBehavior : XRGrabInteractable
     }
 
     // Função auxiliar para quando sair do limite e estiver segurando o pino, soltar ele
+    // pre-condicao: o pino deve estar sendo segurado (isSelected == true)
+    // pos-condicao: interação é cancelada via InteractionManager
     private void soltarPino()
     {
         if (isSelected)
@@ -92,16 +113,10 @@ public class PinoBehavior : XRGrabInteractable
             //Debug.Log("soltando pino");
         }
     }
-
-    // Booleano que mostrará se o user ta dentro do area para a interação ou não
-    private bool dentroArea()
-    {
-        if (limiteArea == null) return true;
-        return limiteArea.bounds.Contains(transform.position);
-    }
-
     
     // Função para detectar que quando o pino estiver pego e sair da área, será soltado a posição final
+    // pre-condicao: box collider da area configurado na cena
+    // pos-condicao: se houver saída fora do tempo de carência (0.1s), a função de soltar é invocada
     public void OnTriggerExit(Collider other)
     {
         //se a colisão for para o Collider "limiteArea" e o pino estiver sendo pego
@@ -115,7 +130,9 @@ public class PinoBehavior : XRGrabInteractable
         }
     }
     
-    // Função para quando solta o pino
+    // Função para quando solta o pino feita pelo interactor
+    // pre-condicao: objeto estava selecionado
+    // pos-condicao: etapa de soltura registrada no sistema e início da rotina de retorno
     protected override void OnSelectExited(SelectExitEventArgs args)
     {
         base.OnSelectExited(args);
@@ -123,7 +140,7 @@ public class PinoBehavior : XRGrabInteractable
         retornoPino();
     }
     
-    // Update para XRInteractable
+    // Update para XRInteractable -> que faz com que o pino volte para o lugar determinado suavemente quando solto
     public override void ProcessInteractable(XRInteractionUpdateOrder.UpdatePhase updatePhase)
     {
         base.ProcessInteractable(updatePhase);
@@ -151,5 +168,4 @@ public class PinoBehavior : XRGrabInteractable
             }
         }
     }
-    
 }

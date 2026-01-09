@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;
 
@@ -17,53 +16,42 @@ public class SplineBehavior : MonoBehaviour
     private bool isGrabbed;
     private bool activeLerp = true;
 
-    [Tooltip("Indices de cada spline point deve iniciar")] 
+    //Indices de cada spline point deve iniciar 
     private int indexPoint = 0;
     private int indexPointToFollow = 1;
     
+    // Relacionado ao material cabo da spline
     [Header("Curva do cabo Spline")] 
     public float rigidezCabo = 0.5f;
+    
     [Header("Suavização do Lerp")]
     [SerializeField]
     private float velocidadeLerp = 10f;
     
-    void LateUpdate()
-    {
-        // Condição inicial para ver se ambos Spline e o Transform do pino existem
-        if (splineContainer != null && pinoDinamico != null)
-        {
-            // caso existir, fará o update do spline point (Knot) [0] para o transform do Pino para seguir,
-            // e não ativa o lerp
-            UpdateSplinePoint(indexPoint, pinoDinamico, !activeLerp);
-
-            // Condição para caso seja pego
-            if (isGrabbed)
-            {
-                // caso existir, fará o update do spline point (Knot) [1] para o gameObject ao lado para nao ficar deformado o cabo
-                // o lerp é ativado para ir suavemente ao lado
-                UpdateSplinePoint(indexPointToFollow, cableToFollow, activeLerp);
-            }
-        }
-    }
     
-    
-    
-    // será colocado no Evento de Select Entered do PinoBehavior, porque é lá que ocorre o Grab e Drop 
+    // Função colocada no Evento de Select Entered do PinoBehavior, porque é lá que ocorre o Grab
+    // pre-condicao: nenhum
+    // pos-condicao: retorna que esta sendo pego
     public void onGrab()
     {
         isGrabbed = true;
-        Debug.Log("pego");
+        //Debug.Log("pego");
     }
 
-    // será colocado no Evento de Select Exited do PinoBehavior, porque é lá que ocorre o Grab e Drop
+    // Função colocada no Evento de Select Exited do PinoBehavior, porque é lá que ocorre o Drop
+    // pre-condicao: nenhum
+    // pos-condicao: retorna que foi solto
     public void onDrop()
     {
         isGrabbed = false;
-        Debug.Log("solto");
+        //Debug.Log("solto");
     }
 
     
     // Função principal para atualizar o spline enquanto interage com a bateria
+    // pre-condicao: index definido para qual parte do spline moverá, Transform para o cabo seguir o pino,
+    //               e o booleano é importante para definir se o cabo irá mover suavemente ou não 
+    // pos-condicao: retorna o movimento suave do pino quando pego e quando solto
     void UpdateSplinePoint(int index, Transform t, bool lerp)
     {
         Spline spline = splineContainer.Spline;
@@ -93,4 +81,25 @@ public class SplineBehavior : MonoBehaviour
         noKnot.TangentOut = Vector3.zero;
         spline[index] = noKnot;
     }
+    
+    // Função atualizada a cada frame para que o spline esteja se movendo naturalmente
+    void Update()
+    {
+        // Condição inicial para ver se ambos Spline e o Transform do pino existem
+        if (splineContainer != null && pinoDinamico != null)
+        {
+            // caso existir, fará o update do spline point (Knot) [0] para o transform do Pino para seguir,
+            // e não ativa o lerp
+            UpdateSplinePoint(indexPoint, pinoDinamico, !activeLerp);
+
+            // Condição para caso seja pego
+            if (isGrabbed)
+            {
+                // caso existir, fará o update do spline point (Knot) [1] para o gameObject ao lado para nao ficar deformado o cabo
+                // o lerp é ativado para ir suavemente ao lado
+                UpdateSplinePoint(indexPointToFollow, cableToFollow, activeLerp);
+            }
+        }
+    }
+    
 }
